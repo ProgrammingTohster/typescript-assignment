@@ -7,7 +7,7 @@ import { position_ref, style } from './components/Styles';
 import { Imports } from './components/Imports';
 import { NavBar } from './components/Navbar';
 import "../public/style.css"
-import { connected_key, notification_max_key, notifications_key, position_key } from './storage';
+import { connected_key, notification_max_key, notification_timeout, notifications_key, position_key } from './storage';
 
 
 const App = () => {
@@ -46,7 +46,9 @@ function Toast({ notification, setState, setRender }:
                 setTimeOut(setTimeout(() => {
                     setRender((render) => render.filter((toast) => toast.key !== notification.msg_id))
                     setState((data) => data.filter((toast) => toast.msg_id !== notification.msg_id));
-                }, 5000))
+                    console.log(localStorage.getItem(notification_max_key)!)
+                }, localStorage.getItem(notification_timeout) ? parseInt(localStorage.getItem(notification_timeout)!) * 1000 : 5 * 1000)
+                )
             }
         },[])
         
@@ -64,7 +66,7 @@ function Toast({ notification, setState, setRender }:
             setTimeOut(setTimeout(() => {
                 setRender((render) => render.filter((toast) => toast.key !== notification.msg_id))
                 setState((data) => data.filter((toast) => toast.msg_id !== notification.msg_id));
-            }, 5000))
+            },  localStorage.getItem(notification_timeout) ? parseInt(localStorage.getItem(notification_timeout)!) * 1000: 5 * 1000))
         }}>
             <p style={style.Toast.text}>{notification.msg}</p>
             <span className="material-symbols-outlined" style={style.Toast.closeBtn} onClick={() => {
@@ -84,7 +86,6 @@ function ToastContainer() {
     let master = sessionStorage.getItem(connected_key)
     let limit = localStorage.getItem(notification_max_key) ? parseInt(localStorage.getItem(notification_max_key)!) : 5;
     useEffect(() => {
-        if(!connected){
             console.log("Initial Connection")
             const eventSource = new EventSource('http://127.0.0.1:9000/events');
             localStorage.setItem(connected_key, "true");
@@ -98,25 +99,23 @@ function ToastContainer() {
             return () => {
                 eventSource.close();
             }
-        }else{
-            console.log("connected!")
-            window.addEventListener("storage", (e) => {
-                console.log(sessionStorage.getItem(connected_key))
-                console.log("Storage listening")
-                setData(localStorage.getItem(notifications_key) ? JSON.parse(localStorage.getItem(notifications_key)!) : [])
+        //     console.log("connected!")
+        //     window.addEventListener("storage", (e) => {
+        //         console.log(sessionStorage.getItem(connected_key))
+        //         console.log("Storage listening")
+        //         setData(localStorage.getItem(notifications_key) ? JSON.parse(localStorage.getItem(notifications_key)!) : [])
                 
-                console.log(data)
-                console.log(data[data.length - 1])
-                let newData = data[data.length - 1] as Notification
+        //         console.log(data)
+        //         console.log(data[data.length - 1])
+        //         let newData = data[data.length - 1] as Notification
         
-                setNewData(newData);
-            })
-        }
+        //         setNewData(newData);
+        //     })
+        // }
     }, [])
     useEffect(() => {
         if (newData) {
             console.log("New data updated!")
-
             if(master === "true"){
                 console.log("master")
                 let array = localStorage.getItem(notifications_key) ? JSON.parse(localStorage.getItem(notifications_key)!) : [];

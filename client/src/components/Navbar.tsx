@@ -16,7 +16,7 @@ export function NavBar({ listOfLinks, selected }: { listOfLinks: Array<String>, 
             }
             listOfStuff.push(<Link to= {routerLink} key={link} style={style.NavBar.Link}>{listOfLinks[link]}</Link>)
         }
-        listOfStuff.push(<p key={listOfLinks.length} style={{ ...{ flexGrow: 1 }, ...style.NavBar.Link }}>0</p>)
+        listOfStuff.push(<p key={listOfLinks.length} style={{  ...style.NavBar.Link ,...{ flexGrow: 1, color: "rgba(0, 0, 0, 0)" },}}>0</p>)
         return listOfStuff
     }
     return (
